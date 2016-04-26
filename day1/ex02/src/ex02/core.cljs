@@ -19,7 +19,7 @@
   (atom
    {:width  640
     :height 480
-    :num    1000}))
+    :num    100}))
 
 (defn make-particle
   [w h]
@@ -166,6 +166,6 @@
           (dom/by-id "stats") (f/format ["Canvas: " (f/float 3) " ms"] fps))
          true)))))
 
-;;(main-svg)
+(main-svg)
 ;;(main-svg-attribs)
 ;;(main-canvas)

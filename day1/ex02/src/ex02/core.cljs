@@ -46,7 +46,7 @@
 
 (defn update-particle
   [particles w h p]
-  (let [;;p      (collide-particle particles p)
+  (let [;p      (collide-particle particles p)
         {:keys [pos vel radius]} p
         [x y]   (m/+ pos vel)
         [vx vy] vel
@@ -166,6 +166,6 @@
           (dom/by-id "stats") (f/format ["Canvas: " (f/float 3) " ms"] fps))
          true)))))
 
-(main-svg)
+;;(main-svg)
 ;;(main-svg-attribs)
 ;;(main-canvas)

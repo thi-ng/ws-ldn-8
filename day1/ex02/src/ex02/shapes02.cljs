@@ -13,6 +13,8 @@
    [thi.ng.math.core :as m]
    [thi.ng.domus.core :as dom]))
 
+(enable-console-print!)
+
 (def width    640)
 (def height   480)
 (def model    (g/rotate-y (mat/matrix44) m/SIXTH_PI))
@@ -99,3 +101,6 @@
   (time (render-svg shader-diffuse))
   (time (render-svg shader-lambert))
   (time (render-svg shader-phong)))
+
+;;(main)
+

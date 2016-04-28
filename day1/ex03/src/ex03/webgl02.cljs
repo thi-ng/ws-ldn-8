@@ -1,23 +1,18 @@
 (ns ex03.webgl02
-  (:require-macros
-   [thi.ng.math.macros :as mm])
   (:require
    [thi.ng.math.core :as m :refer [PI HALF_PI TWO_PI]]
    [thi.ng.geom.gl.core :as gl]
    [thi.ng.geom.gl.webgl.constants :as glc]
    [thi.ng.geom.gl.webgl.animator :as anim]
-   [thi.ng.geom.gl.buffers :as buf]
    [thi.ng.geom.gl.glmesh :as glm]
    [thi.ng.geom.gl.camera :as cam]
    [thi.ng.geom.gl.shaders :as sh]
    [thi.ng.geom.gl.shaders.basic :as basic]
-   [thi.ng.geom.gl.utils :as glu]
    [thi.ng.geom.core :as g]
    [thi.ng.geom.vector :as v :refer [vec2 vec3]]
    [thi.ng.geom.matrix :as mat :refer [M44]]
    [thi.ng.geom.aabb :as a]
    [thi.ng.geom.attribs :as attr]
-   [thi.ng.typedarrays.core :as arrays]
    [thi.ng.color.core :as col]))
 
 (defn ^:export demo

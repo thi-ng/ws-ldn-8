@@ -1,6 +1,4 @@
 (ns ex03.webgl05
-  (:require-macros
-   [thi.ng.math.macros :as mm])
   (:require
    [thi.ng.math.core :as m :refer [PI HALF_PI TWO_PI]]
    [thi.ng.geom.gl.core :as gl]
@@ -13,18 +11,15 @@
    [thi.ng.geom.core :as g]
    [thi.ng.geom.vector :as v :refer [vec2 vec3]]
    [thi.ng.geom.matrix :as mat :refer [M44]]
-   [thi.ng.geom.aabb :as a]
    [thi.ng.geom.attribs :as attr]
-   [thi.ng.typedarrays.core :as arrays]
-   [thi.ng.color.core :as col]
    [thi.ng.geom.circle :as c]
    [thi.ng.geom.ptf :as ptf]
    [thi.ng.glsl.core :as glsl :include-macros true]
    [thi.ng.glsl.vertex :as vertex]
    [thi.ng.glsl.lighting :as light]
    [thi.ng.glsl.fog :as fog]
-   [thi.ng.color.gradients :as grad]
-   ))
+   [thi.ng.color.core :as col]
+   [thi.ng.color.gradients :as grad]))
 
 (enable-console-print!)
 

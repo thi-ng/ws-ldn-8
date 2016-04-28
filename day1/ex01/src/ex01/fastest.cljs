@@ -49,11 +49,12 @@
 (defn draw
   "Visualizes grid state in given canvas context & image data buffer."
   [ctx img len [grid :as state]]
-  (let [pixels (.-data img)]
+  (let [pixels (-> img .-data ta/uint32-view)]
     (loop [i 0, idx 0]
       (if (< i len)
-        (do (aset pixels idx (* (aget grid i) 0xff))
-            (recur (inc i) (+ idx 4)))
+        ;; byteorder: ABGR
+        (do (aset pixels idx (if (pos? (aget grid i)) 0xff00ffff 0xff000000))
+            (recur (inc i) (+ idx 1)))
         (do (.putImageData ctx img 0 0)
             state)))))
 

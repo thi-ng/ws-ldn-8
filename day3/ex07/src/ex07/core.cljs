@@ -79,19 +79,26 @@
 
 (def shader-spec
   {:vs "void main() {
+    vCol = color;
     gl_Position = proj * view * model * vec4(position, 1.0);
     gl_PointSize = 4.0;
     }"
    :fs "void main() {
-    gl_FragColor = vec4(0.5, 0.2, 0.1, 1.0);
+    gl_FragColor = vec4(vCol, 1.0);
     }"
    :uniforms {:model    [:mat4 M44]
               :view     :mat4
               :proj     :mat4}
-   :attribs  {:position :vec3}
+   :attribs  {:position :vec3
+              :color    :vec3}
+   :varying  {:vCol :vec3}
    :state    {:depth-test false
               :blend      true
               :blend-fn   [glc/src-alpha glc/one]}})
+
+(defn attrib-buffer-view
+  [ptr stride num]
+  (js/Float32Array. (.-buffer (aget js/Module "HEAPU8")) ptr (* stride num)))
 
 (defn init-app-3d
   [this]
@@ -103,14 +110,13 @@
         psys-get     (.cwrap js/Module "getParticleComponent" "number" #js ["number" "number" "number"])
         particle-ptr (.ccall js/Module "getParticlesPointer" "number" #js ["number"] #js [psys])
         gl           (gl/gl-context (reagent/dom-node this))
-        particles    (-> {:attribs      {:position {:data   (js/Float32Array.
-                                                             (.-buffer (aget js/Module "HEAPU8"))
-                                                             particle-ptr
-                                                             (* 6 10000))
+        particles    (-> {:attribs      {:position {:data   (attrib-buffer-view particle-ptr 9 10000)
                                                     :size   3
-                                                    :stride 24}}
+                                                    :stride 36}
+                                         :color    {:data   (attrib-buffer-view (+ particle-ptr 24) 9 10000)
+                                                    :size   3
+                                                    :stride 36}}
                           :num-vertices 10000
-                          ;;:num-items    10000
                           :mode         glc/points}
                          (gl/make-buffers-in-spec gl glc/dynamic-draw)
                          (assoc :shader (sh/make-shader-from-spec gl shader-spec))
@@ -135,9 +141,12 @@
       (.bindBuffer gl glc/array-buffer
                    (get-in scene [:particles :attribs :position :buffer]))
       (.bufferData gl glc/array-buffer
-                   (js/Float32Array. (.-buffer (aget js/Module "HEAPU8"))
-                                     particle-ptr
-                                     (* 6 10000))
+                   (attrib-buffer-view particle-ptr 9 10000)
+                   glc/dynamic-draw)
+      (.bindBuffer gl glc/array-buffer
+                   (get-in scene [:particles :attribs :color :buffer]))
+      (.bufferData gl glc/array-buffer
+                   (attrib-buffer-view (+ particle-ptr 24) 9 10000)
                    glc/dynamic-draw)
       (doto gl
         (gl/clear-color-and-depth-buffer (col/rgba 0 0 0.1) 1)

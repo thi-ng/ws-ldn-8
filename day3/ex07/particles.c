@@ -18,8 +18,8 @@ typedef struct {
 typedef struct {
   Vec3 pos; // 12 bytes
   Vec3 vel; // 12 bytes
-  //Vec3 col; // 12 bytes
-} Particle; // 2 * 12
+  Vec3 col; // 12 bytes
+} Particle;
 
 typedef struct {
   Particle *particles;
@@ -77,9 +77,9 @@ static void emitParticle(ParticleSystem* psys) {
   p->vel.x += randf();
   p->vel.z += randf();
   scaleVec3(&p->vel, psys->speed);
-  //p->col.x = randf01();
-  //p->col.y = randf01();
-  //p->col.z = randf01();
+  p->col.x = randf01();
+  p->col.y = randf01();
+  p->col.z = randf01();
   psys->numParticles++;
 }
 

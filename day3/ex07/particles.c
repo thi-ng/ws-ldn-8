@@ -33,25 +33,25 @@ typedef struct {
   uint32_t maxAge;
 } ParticleSystem;
 
-void setVec3(Vec3 *v, float x, float y, float z) {
+static inline void setVec3(Vec3 *v, float x, float y, float z) {
   v->x = x;
   v->y = y;
   v->z = z;
 }
 
-void addVec3(Vec3* v, Vec3* v2) {
+static inline void addVec3(Vec3* v, Vec3* v2) {
   v->x += v2->x;
   v->y += v2->y;
   v->z += v2->z;
 }
 
-void scaleVec3(Vec3* v, float s) {
+static inline void scaleVec3(Vec3* v, float s) {
   v->x *= s;
   v->y *= s;
   v->z *= s;
 }
 
-void normalizeVec3(Vec3* v, float l) {
+static inline void normalizeVec3(Vec3* v, float l) {
   float m = sqrtf(v->x * v->x + v->y * v->y + v->z * v->z);
   if (m > 0.0f) {
     l /= m;
@@ -69,7 +69,7 @@ static inline float randf() {
   return randf01() * 2.0f - 1.0f;
 }
 
-void emitParticle(ParticleSystem* psys) {
+static void emitParticle(ParticleSystem* psys) {
   Particle *p = &psys->particles[psys->numParticles];
   p->pos = psys->emitPos;
   p->vel = psys->emitDir;
@@ -99,7 +99,7 @@ EMSCRIPTEN_KEEPALIVE float getParticleComponent(ParticleSystem* psys, uint32_t i
   }
 }
 
-ParticleSystem* makeParticleSystem(uint32_t num) {
+static ParticleSystem* makeParticleSystem(uint32_t num) {
   ParticleSystem *psys = (ParticleSystem*)malloc(sizeof(ParticleSystem));
   psys->particles = (Particle*)malloc(num * sizeof(Particle));
   psys->maxParticles = num;

@@ -34,8 +34,8 @@
   []
   (.initializeTouchEvents js/React)
   (let [root [gl-component
-              {:init game/init-game
-               :loop game/game-loop
+              {:init          game/init-game
+               :loop          game/game-loop
                :on-mouse-move (fn [e] (game/update-player-pos! (.-clientX e)))
                :on-mouse-down (fn [e] (game/player-max-speed!))
                :on-mouse-up   (fn [e] (game/player-normal-speed!))

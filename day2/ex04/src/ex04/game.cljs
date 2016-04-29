@@ -14,13 +14,14 @@
    [thi.ng.geom.gl.webgl.animator :as anim]
    [thi.ng.geom.gl.buffers :as buf]
    [thi.ng.geom.gl.shaders :as sh]
-   [thi.ng.geom.gl.shaders.image :as img]
    [thi.ng.geom.gl.utils :as glu]
    [thi.ng.geom.gl.camera :as cam]
+   [thi.ng.geom.gl.fx :as fx]
    [thi.ng.geom.core :as g]
    [thi.ng.geom.vector :as v :refer [vec2 vec3]]
    [thi.ng.geom.matrix :as mat :refer [M44]]
    [thi.ng.geom.ptf :as ptf]
+   [thi.ng.geom.rect :as r]
    [thi.ng.geom.utils :as gu]
    [thi.ng.color.core :as col]
    [reagent.core :as reagent]))
@@ -78,7 +79,7 @@
                     gl {:callback (fn [tex img] (swap! app assoc-in [:flags :logo-ready] true))
                         :src      "img/sjo512_2.png"
                         :format   glc/rgba
-                        :flip     false})
+                        :flip     true})
         vw         (g/width view-rect)
         vh         (g/height view-rect)
         logo-size  (min (* 0.8 (min vw vh)) 512)]
@@ -92,24 +93,23 @@
              :cam    (wscam/camera-path wsmesh/path-points wsmesh/path-frames)
              :gl     gl
              :view   view-rect
+             :logo-view (r/rect [(/ (- vw logo-size) 2) (/ (- vh logo-size) 2)] logo-size)
              :scene  {:tunnel     (-> (wsmesh/knot-simple)
-                                      (gl/as-webgl-buffer-spec {})
+                                      (gl/as-gl-buffer-spec {})
                                       (assoc :shader (sh/make-shader-from-spec gl wsshader/tunnel-shader))
                                       (assoc-in [:shader :state :tex] tunnel-tex)
                                       (gl/make-buffers-in-spec gl glc/static-draw)
                                       (time))
                       :player     (-> (wsmesh/player)
-                                      (gl/as-webgl-buffer-spec {})
+                                      (gl/as-gl-buffer-spec {})
                                       (assoc :shader (sh/make-shader-from-spec gl wsshader/player-shader))
                                       (gl/make-buffers-in-spec gl glc/static-draw))
                       :tunnel-tex tunnel-tex
-                      :logo       (img/make-shader-spec
-                                   gl {:view-port view-rect
-                                       :pos       [(/ (- vw logo-size) 2)
-                                                   (/ (- vh logo-size) 2)]
-                                       :width     logo-size
-                                       :height    logo-size
-                                       :state     {:tex logo}})}
+                      :logo       (-> (fx/init-fx-quad gl)
+                                      (assoc :shader (sh/make-shader-from-spec gl fx/shader-spec))
+                                      (update-in [:shader :state] merge
+                                                 {:tex   logo
+                                                  :blend true}))}
              :flags  {:active     true
                       :logo-ready false}})))
 
@@ -142,7 +142,7 @@
   [this]
   (fn [t frame]
     (update-game-state!)
-    (let [{:keys [gl view player scene flags]} @app
+    (let [{:keys [gl view logo-view player scene flags]} @app
           cam           (:cam scene)
           lum           (m/map-interval (Math/sin (+ PI (* t 0.2))) -1 1 0.1 0.5)
           [bgr bgg bgb] @(col/as-rgba (col/hsla 0.6666 1 lum))]
@@ -168,5 +168,6 @@
                      :model (:tx player))
              (gl/inject-normal-matrix :model :view :normalMat))))
       (when (:logo-ready flags)
-        (img/draw gl (:logo scene)))
+        (gl/set-viewport gl logo-view)
+        (gl/draw-with-shader gl (:logo scene)))
       (:active (reagent/state this)))))

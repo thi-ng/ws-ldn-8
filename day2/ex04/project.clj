@@ -10,7 +10,7 @@
                  [org.clojure/clojurescript "1.8.51"]
                  [org.clojure/core.async "0.2.374"
                   :exclusions [org.clojure/tools.reader]]
-                 [thi.ng/geom "0.0.1151-SNAPSHOT"]
+                 [thi.ng/geom "0.0.1158-SNAPSHOT"]
                  [thi.ng/domus "0.3.0-SNAPSHOT"]
                  [reagent "0.5.1"]
                  [cljsjs/localforage "1.3.1-0"]]
@@ -25,8 +25,8 @@
   :cljsbuild {:builds
               [{:id           "dev1"
                 :source-paths ["src"]
-                :figwheel     true ;; {:on-jsload "ws-ldn-5.core/on-js-reload"}
-                :compiler     {:main                 ws-ldn-5.core
+                :figwheel     true
+                :compiler     {:main                 ex04.core
                                :asset-path           "js/compiled/out"
                                :output-to            "resources/public/js/compiled/app.js"
                                :output-dir           "resources/public/js/compiled/out"

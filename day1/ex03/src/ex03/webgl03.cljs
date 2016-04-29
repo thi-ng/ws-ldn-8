@@ -23,12 +23,13 @@
                       (g/center)
                       (g/as-mesh
                        {:mesh    (glm/indexed-gl-mesh 12 #{:col :fnorm})
+                        ;;:flags   :ewfbs
                         :attribs {:col (->> [[1 0 0] [0 1 0] [0 0 1] [0 1 1] [1 0 1] [1 1 0]]
                                             (map col/rgba)
                                             (attr/const-face-attribs))}})
                       (gl/as-gl-buffer-spec {})
                       (cam/apply (cam/perspective-camera {:aspect view-rect}))
-                      (assoc :shader (sh/make-shader-from-spec gl lambert/shader-spec-attrib))
+                      (assoc :shader (sh/make-shader-from-spec gl lambert/shader-spec-two-sided-attrib))
                       (gl/make-buffers-in-spec gl glc/static-draw))]
     (anim/animate
      (fn [t frame]

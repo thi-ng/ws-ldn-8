@@ -28,7 +28,6 @@
    :uniforms {:model    [:mat4 M44]
               :view     :mat4
               :proj     :mat4
-              :displace :sampler2D
               :tex      :sampler2D}
    :attribs  {:position :vec3
               :uv       :vec2}
@@ -44,7 +43,7 @@
                        (g/center)
                        (g/as-mesh {:mesh    (glm/gl-mesh 4096 #{:uv})
                                    :res     sphere-res
-                                   :attribs {:uv (attr/supplied-attrib :uv vec2)}})
+                                   :attribs {:uv (attr/supplied-attrib :uv (fn [[u v]] (vec2 (- 1 u) v)))}})
                        (gl/as-gl-buffer-spec {})
                        (cam/apply
                         (cam/perspective-camera

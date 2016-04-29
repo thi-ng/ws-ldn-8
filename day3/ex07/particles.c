@@ -77,7 +77,9 @@ static void emitParticle(ParticleSystem* psys) {
   p->vel.x += randf();
   p->vel.z += randf();
   scaleVec3(&p->vel, psys->speed);
-  //p->col = (uint32_t)rand();
+  //p->col.x = randf01();
+  //p->col.y = randf01();
+  //p->col.z = randf01();
   psys->numParticles++;
 }
 
@@ -90,13 +92,8 @@ EMSCRIPTEN_KEEPALIVE Particle* getParticlesPointer(ParticleSystem* psys) {
 }
 
 EMSCRIPTEN_KEEPALIVE float getParticleComponent(ParticleSystem* psys, uint32_t idx, uint32_t component) {
-  Vec3 *pos = &(psys->particles[idx]).pos;
-  switch(component) {
-  case 0: return pos->x;
-  case 1: return pos->y;
-  case 2: return pos->z;
-  default: return 0;
-  }
+  float *pos = (float*)&(psys->particles[idx]).pos;
+  return pos[component];
 }
 
 static ParticleSystem* makeParticleSystem(uint32_t num) {

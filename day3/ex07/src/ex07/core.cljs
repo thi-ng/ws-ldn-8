@@ -72,7 +72,7 @@
                 y (psys-get psys i 1)]
             (doto ctx
               (.beginPath)
-              (.arc x y 5 0 m/TWO_PI)
+              (.arc x y 2 0 m/TWO_PI)
               (.fill))
             (recur (inc i)))))
       (:active (reagent/state this)))))

@@ -45,3 +45,15 @@
              (glsl/glsl-spec-plain [col/threshold])
              (glsl/assemble))
     :uniforms {:time [:float 0.0]}}))
+
+(def pixelate-shader-spec
+  (d/merge-deep
+   fx/shader-spec
+   {:fs (->> "void main() {
+    vec2 uv = floor(vUV / (1.0 / size) + 0.5) / size;
+    gl_FragColor = vec4(texture2D(tex, uv).rgb, 1.0);
+  }"
+             (glsl/glsl-spec-plain [])
+             (glsl/assemble))
+    :uniforms {:time [:float 0.0]
+               :size [:float 32]}}))

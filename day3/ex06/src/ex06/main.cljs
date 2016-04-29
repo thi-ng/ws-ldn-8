@@ -77,14 +77,16 @@
         view-rect (gl/get-viewport-rect gl)
         thresh    (sh/make-shader-from-spec gl shaders/threshold-shader-spec)
         hue-shift (sh/make-shader-from-spec gl shaders/hueshift-shader-spec)
-        twirl     (sh/make-shader-from-spec gl shaders/twirl-shader-spec)]
+        twirl     (sh/make-shader-from-spec gl shaders/twirl-shader-spec)
+        pixelate  (sh/make-shader-from-spec gl shaders/pixelate-shader-spec)]
     (swap! app merge
            {:gl          gl
             :view        view-rect
             :curr-shader :thresh
             :shaders     {:thresh    thresh
                           :hue-shift hue-shift
-                          :twirl     twirl}
+                          :twirl     twirl
+                          :pixelate  pixelate}
             :scene       {:img (-> (fx/init-fx-quad gl)
                                    (assoc :shader thresh))}})
     (init-rtc-stream 640 480)))

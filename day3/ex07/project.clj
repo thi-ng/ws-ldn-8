@@ -35,7 +35,7 @@
                 :source-paths ["src"]
                 :compiler     {:output-to     "resources/public/js/compiled/app.js"
                                :optimizations :advanced
-                               :pretty-print  false}}]}
+                               :externs       ["externs.js"]}}]}
 
   :figwheel {:css-dirs ["resources/public/css"]
              ;; :ring-handler hello_world.server/handler

@@ -42,12 +42,14 @@
 
 (defn init-app-2d
   [this]
-  (let [psys        (.ccall js/Module "main")
+  (let [canvas      (reagent/dom-node this)
+        ctx         (.getContext canvas "2d")
+        psys        (.ccall js/Module "initParticleSystem" "*"
+                            #js ["number" "number" "number" "number"]
+                            #js [10000 1000 (/ (.-width canvas) 2) -0.1 3])
         psys-update (.cwrap js/Module "updateParticleSystem" "*" #js ["number"])
         psys-count  (.cwrap js/Module "getNumParticles" "number" #js ["number"])
-        psys-get    (.cwrap js/Module "getParticleComponent" "number" #js ["number" "number" "number"])
-        canvas      (reagent/dom-node this)
-        ctx         (.getContext canvas "2d")]
+        psys-get    (.cwrap js/Module "getParticleComponent" "number" #js ["number" "number" "number"])]
     (swap! app merge
            {:psys        psys
             :psys-update psys-update
@@ -63,8 +65,6 @@
           _   (psys-update #js [psys])
           num (psys-count #js [psys])]
       (set! (.-width canvas) (.-width canvas))
-      (set! (.-fillStyle ctx) "white")
-      (.fillRect ctx 500 1 10 10)
       (set! (.-fillStyle ctx) "red")
       (loop [i 0]
         (when (< i num)
@@ -80,16 +80,14 @@
 (def shader-spec
   {:vs "void main() {
     gl_Position = proj * view * model * vec4(position, 1.0);
-    gl_PointSize = 10.0;
+    gl_PointSize = 4.0;
     }"
    :fs "void main() {
-    gl_FragColor = vec4(0.5, 0.5, 0.01, 1.0);
+    gl_FragColor = vec4(0.5, 0.2, 0.1, 1.0);
     }"
    :uniforms {:model    [:mat4 M44]
               :view     :mat4
-              :proj     :mat4
-              ;;:tex      :sampler2D
-              }
+              :proj     :mat4}
    :attribs  {:position :vec3}
    :state    {:depth-test false
               :blend      true
@@ -97,27 +95,28 @@
 
 (defn init-app-3d
   [this]
-  (let [psys         (.ccall js/Module "main")
+  (let [psys         (.ccall js/Module "initParticleSystem" "*"
+                             #js ["number" "number" "number" "number"]
+                             #js [10000 1000 0.0 -0.01 0.125])
         psys-update  (.cwrap js/Module "updateParticleSystem" "*" #js ["number"])
         psys-count   (.cwrap js/Module "getNumParticles" "number" #js ["number"])
         psys-get     (.cwrap js/Module "getParticleComponent" "number" #js ["number" "number" "number"])
-        gl           (gl/gl-context (reagent/dom-node this))
         particle-ptr (.ccall js/Module "getParticlesPointer" "number" #js ["number"] #js [psys])
-        _ (debug :particle-ptr particle-ptr)
-        particles    (-> {:attribs      {:position {:data   (js/Float32Array. (.-buffer (aget js/Module "HEAPU8"))
-                                                                              particle-ptr
-                                                                              (* 7 10000))
+        gl           (gl/gl-context (reagent/dom-node this))
+        particles    (-> {:attribs      {:position {:data   (js/Float32Array.
+                                                             (.-buffer (aget js/Module "HEAPU8"))
+                                                             particle-ptr
+                                                             (* 6 10000))
                                                     :size   3
-                                                    :stride 28}}
+                                                    :stride 24}}
                           :num-vertices 10000
-                          :num-items    10000
+                          ;;:num-items    10000
                           :mode         glc/points}
                          (gl/make-buffers-in-spec gl glc/dynamic-draw)
                          (assoc :shader (sh/make-shader-from-spec gl shader-spec))
                          (update :uniforms merge
-                                 {:model (g/scale M44 0.1)
-                                  :view  (mat/look-at (vec3 0 0 2) (vec3 0 0 0) (vec3 0 1 0))
-                                  :proj  (mat/perspective 90 (/ 16 9) 0.1 100)}))]
+                                 {:view (mat/look-at (vec3 0 2 2) (vec3 0 1 0) (vec3 0 1 0))
+                                  :proj (mat/perspective 90 (/ 16 9) 0.1 100)}))]
     (swap! app merge
            {:psys         psys
             :psys-update  psys-update
@@ -138,12 +137,14 @@
       (.bufferData gl glc/array-buffer
                    (js/Float32Array. (.-buffer (aget js/Module "HEAPU8"))
                                      particle-ptr
-                                     (* 7 10000))
+                                     (* 6 10000))
                    glc/dynamic-draw)
       (doto gl
         (gl/clear-color-and-depth-buffer (col/rgba 0 0 0.1) 1)
         (gl/draw-with-shader
-         (assoc (:particles scene) :num-vertices num)))
+         (-> (:particles scene)
+             (assoc :num-vertices num)
+             (assoc-in [:uniforms :model] (-> M44 (g/rotate-y (* t 0.25)) (g/scale 0.1))))))
       (:active (reagent/state this)))))
 
 (defn main

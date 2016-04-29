@@ -60,8 +60,8 @@
       (set! (.-fillStyle ctx) "red")
       (loop [i 0]
         (when (< i num)
-          (let [x (psys-get #js [psys i 0])
-                y (psys-get #js [psys i 1])]
+          (let [x (psys-get psys i 0)
+                y (psys-get psys i 1)]
             (doto ctx
               (.beginPath)
               (.arc x y 5 0 m/TWO_PI)

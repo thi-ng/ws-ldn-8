@@ -1,5 +1,5 @@
 (defproject ws-ldn-8-ex04 "0.1.0-SNAPSHOT"
-  :description  "thi.ng Clojurescript workshop WS-LDN-5"
+  :description  "thi.ng Clojurescript workshop WS-LDN-8"
   :url          "http://workshop.thi.ng"
   :license      {:name "Eclipse Public License"
                  :url "http://www.eclipse.org/legal/epl-v10.html"}

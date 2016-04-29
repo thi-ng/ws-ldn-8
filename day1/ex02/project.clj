@@ -23,7 +23,7 @@
   :cljsbuild {:builds
               [{:id "dev"
                 :source-paths ["src"]
-                :figwheel true ;; {:on-jsload "ex02.core/on-js-reload"}
+                :figwheel true
                 :compiler {:main ex02.core
                            :asset-path "js/compiled/out"
                            :output-to "resources/public/js/compiled/app.js"

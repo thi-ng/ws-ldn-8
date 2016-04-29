@@ -16,10 +16,10 @@ typedef struct {
 } Vec3;
 
 typedef struct {
-  Vec3 pos;
-  Vec3 vel;
-  uint32_t col;
-} Particle;
+  Vec3 pos; // 12 bytes
+  Vec3 vel; // 12 bytes
+  uint32_t col; // 4 bytes
+} Particle; // 12+12+4
 
 typedef struct {
   Particle *particles;
@@ -73,9 +73,14 @@ void emitParticle(ParticleSystem* psys) {
   psys->numParticles++;
 }
 
+#define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
+
 EMSCRIPTEN_KEEPALIVE ParticleSystem* updateParticleSystem(ParticleSystem* psys) {
   if (psys->numParticles < psys->maxParticles) {
-    emitParticle(psys);
+    uint32_t limit = MIN(psys->numParticles + 10, psys->maxParticles);
+    while(psys->numParticles < limit) {
+      emitParticle(psys);
+    }
   }
   if (psys->age == psys->maxAge) {
     psys->numParticles = 0;
@@ -96,7 +101,7 @@ EMSCRIPTEN_KEEPALIVE uint32_t getNumParticles(ParticleSystem* psys) {
 
 EMSCRIPTEN_KEEPALIVE float getParticleComponent(ParticleSystem* psys, uint32_t idx, uint32_t component) {
   Vec3 *pos = &((psys->particles[idx]).pos);
-  printf("%u %u %f %f %f\n", idx, component, pos->x, pos->y, pos->z);
+  //printf("%u %u %f %f %f\n", idx, component, pos->x, pos->y, pos->z);
   switch(component) {
   case 0: return pos->x;
   case 1: return pos->y;
@@ -105,8 +110,13 @@ EMSCRIPTEN_KEEPALIVE float getParticleComponent(ParticleSystem* psys, uint32_t i
   }
 }
 
+EMSCRIPTEN_KEEPALIVE Particle* getParticlesPointer(ParticleSystem* psys) {
+  return psys->particles;
+}
+
 EMSCRIPTEN_KEEPALIVE int main(int argc, char** argv) {
-  printf("Hello Emscripten!");
+  printf("Hello Emscripten!\n");
+  printf("Particle size: %u\n", sizeof(Particle));
   ParticleSystem *psys = makeParticleSystem(10000);
   setVec3(&(psys->emitPos), 500.f, 1.f, 0.f);
   setVec3(&(psys->emitDir), 0.f, 1.f, 0.f);

@@ -1,7 +1,9 @@
-// emcc -s ASM_JS=1 particles.c -s INVOKE_RUN=0 -o resources/public/js/native.html
+/*
+ How to compile this file:
 
-// emcc -O2 -o index.html -s ASM_JS=1 -s NO_FILESYSTEM=1 --closure 1 particles.c
-// emcc -O2 -o index.html -s NO_FILESYSTEM=1 -s INVOKE_RUN=1 -s "EXPORT_NAME='Foo'" -s MODULARIZE=1 --closure 1 particles.c
+ emcc -O2 -s ASM_JS=1 -s INVOKE_RUN=0 particles.c -o resources/public/js/native.html && \
+ cp resources/public/js/native.html.mem resources/public/
+*/
 
 #include <stdio.h>
 #include <stdint.h>

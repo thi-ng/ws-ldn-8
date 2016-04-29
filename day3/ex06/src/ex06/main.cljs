@@ -15,6 +15,10 @@
    [thi.ng.geom.vector :as v :refer [vec2 vec3]]
    [thi.ng.geom.matrix :as mat :refer [M44]]
    [thi.ng.geom.rect :as r]
+   [thi.ng.geom.aabb :as a]
+   [thi.ng.geom.attribs :as attr]
+   [thi.ng.geom.gl.glmesh :as glm]
+   [thi.ng.geom.gl.camera :as cam]
    [thi.ng.geom.utils :as gu]
    [thi.ng.color.core :as col]
    [thi.ng.domus.core :as dom]
@@ -22,7 +26,8 @@
 
 (defonce app
   (reagent/atom
-   {:stream {:state :wait}}))
+   {:stream {:state :wait}
+    :curr-shader :thresh}))
 
 (defn set-stream-state!
   [state] (swap! app assoc-in [:stream :state] state))
@@ -36,8 +41,8 @@
              (:gl @app) video
              {:filter glc/linear
               :wrap   glc/clamp-to-edge
-              :width  640
-              :height 480
+              :width  (.-width video)
+              :height (.-height video)
               :flip   true
               :premultiply false})]
     (swap! app assoc-in [:scene :img :shader :state :tex] tex)))
@@ -73,23 +78,46 @@
 
 (defn init-app
   [this]
-  (let [gl        (gl/gl-context (reagent/dom-node this))
+  (let [vw        640
+        vh        480
+        gl        (gl/gl-context (reagent/dom-node this))
         view-rect (gl/get-viewport-rect gl)
         thresh    (sh/make-shader-from-spec gl shaders/threshold-shader-spec)
         hue-shift (sh/make-shader-from-spec gl shaders/hueshift-shader-spec)
         twirl     (sh/make-shader-from-spec gl shaders/twirl-shader-spec)
-        pixelate  (sh/make-shader-from-spec gl shaders/pixelate-shader-spec)]
+        pixelate  (sh/make-shader-from-spec gl shaders/pixelate-shader-spec)
+        tile      (sh/make-shader-from-spec gl shaders/tile-shader-spec)
+        fbo-tex   (buf/make-texture
+                   gl {:width  512
+                       :height 512
+                       :filter glc/linear
+                       :wrap   glc/clamp-to-edge})
+        fbo       (buf/make-fbo-with-attachments
+                   gl {:tex    fbo-tex
+                       :width  512
+                       :height 512
+                       :depth? true})]
     (swap! app merge
            {:gl          gl
             :view        view-rect
-            :curr-shader :thresh
             :shaders     {:thresh    thresh
                           :hue-shift hue-shift
                           :twirl     twirl
+                          :tile      tile
                           :pixelate  pixelate}
-            :scene       {:img (-> (fx/init-fx-quad gl)
-                                   (assoc :shader thresh))}})
-    (init-rtc-stream 640 480)))
+            :scene       {:fbo     fbo
+                          :fbo-tex fbo-tex
+                          :cube    (-> (a/aabb 1)
+                                       (g/center)
+                                       (g/as-mesh
+                                        {:mesh    (glm/indexed-gl-mesh 12 #{:uv})
+                                         :attribs {:uv attr/uv-faces}})
+                                       (gl/as-gl-buffer-spec {})
+                                       (assoc :shader (sh/make-shader-from-spec gl shaders/cube-shader-spec))
+                                       (gl/make-buffers-in-spec gl glc/static-draw))
+                          :img     (-> (fx/init-fx-quad gl)
+                                       #_(assoc :shader thresh))}})
+    (init-rtc-stream vw vh)))
 
 (defn update-app
   [this]
@@ -98,10 +126,24 @@
       (when-let [tex (get-in scene [:img :shader :state :tex])]
         (gl/configure tex {:image (:video stream)})
         (gl/bind tex)
+        ;; render to texture
+        ;; (gl/bind (:fbo scene))
         (doto gl
-          (gl/set-viewport view)
+          ;;(gl/set-viewport 0 0 512 512)
+          (gl/clear-color-and-depth-buffer col/BLACK 1)
           (gl/draw-with-shader
            (-> (:img scene)
                (assoc-in [:uniforms :time] t)
-               (assoc :shader (shaders curr-shader))))))
+               (assoc :shader (shaders curr-shader)))))
+        ;;(gl/unbind (:fbo scene))
+        ;; render cube to main canvas
+        ;;(gl/bind (:fbo-tex scene) 0)
+        #_(doto gl
+          (gl/set-viewport view)
+          (gl/draw-with-shader
+           (-> (:cube scene)
+               (cam/apply
+                (cam/perspective-camera
+                 {:eye (vec3 0 0 1.25) :fov 90 :aspect view}))
+               (assoc-in [:uniforms :model] (-> M44 (g/rotate-x t) (g/rotate-y (* t 2))))))))
       (:active (reagent/state this)))))

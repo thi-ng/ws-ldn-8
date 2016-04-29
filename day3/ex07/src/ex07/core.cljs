@@ -100,6 +100,14 @@
   [ptr stride num]
   (js/Float32Array. (.-buffer (aget js/Module "HEAPU8")) ptr (* stride num)))
 
+(defn update-attrib-buffer
+  [gl attrib ptr stride num]
+  (.bindBuffer gl glc/array-buffer
+               (get-in (:scene @app) [:particles :attribs attrib :buffer]))
+  (.bufferData gl glc/array-buffer
+               (attrib-buffer-view ptr stride num)
+               glc/dynamic-draw))
+
 (defn init-app-3d
   [this]
   (let [psys         (.ccall js/Module "initParticleSystem" "*"
@@ -138,16 +146,8 @@
     (let [{:keys [gl psys psys-update psys-count particle-ptr scene]} @app
           _   (psys-update #js [psys])
           num (psys-count #js [psys])]
-      (.bindBuffer gl glc/array-buffer
-                   (get-in scene [:particles :attribs :position :buffer]))
-      (.bufferData gl glc/array-buffer
-                   (attrib-buffer-view particle-ptr 9 10000)
-                   glc/dynamic-draw)
-      (.bindBuffer gl glc/array-buffer
-                   (get-in scene [:particles :attribs :color :buffer]))
-      (.bufferData gl glc/array-buffer
-                   (attrib-buffer-view (+ particle-ptr 24) 9 10000)
-                   glc/dynamic-draw)
+      (update-attrib-buffer gl :position particle-ptr 9 10000)
+      (update-attrib-buffer gl :color (+ particle-ptr 24) 9 10000)
       (doto gl
         (gl/clear-color-and-depth-buffer (col/rgba 0 0 0.1) 1)
         (gl/draw-with-shader

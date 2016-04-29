@@ -44,12 +44,12 @@
   [this]
   (let [canvas      (reagent/dom-node this)
         ctx         (.getContext canvas "2d")
-        psys        (.ccall js/Module "initParticleSystem" "*"
+        psys        (.ccall js/Particles "initParticleSystem" "*"
                             #js ["number" "number" "number" "number"]
                             #js [10000 1000 (/ (.-width canvas) 2) -0.1 3])
-        psys-update (.cwrap js/Module "updateParticleSystem" "*" #js ["number"])
-        psys-count  (.cwrap js/Module "getNumParticles" "number" #js ["number"])
-        psys-get    (.cwrap js/Module "getParticleComponent" "number" #js ["number" "number" "number"])]
+        psys-update (.cwrap js/Particles "updateParticleSystem" "*" #js ["number"])
+        psys-count  (.cwrap js/Particles "getNumParticles" "number" #js ["number"])
+        psys-get    (.cwrap js/Particles "getParticleComponent" "number" #js ["number" "number" "number"])]
     (swap! app merge
            {:psys        psys
             :psys-update psys-update
@@ -98,7 +98,7 @@
 
 (defn attrib-buffer-view
   [ptr stride num]
-  (js/Float32Array. (.-buffer (aget js/Module "HEAPU8")) ptr (* stride num)))
+  (js/Float32Array. (.-buffer (aget js/Particles "HEAPU8")) ptr (* stride num)))
 
 (defn update-attrib-buffer
   [gl attrib ptr stride num]
@@ -110,13 +110,13 @@
 
 (defn init-app-3d
   [this]
-  (let [psys         (.ccall js/Module "initParticleSystem" "*"
+  (let [psys         (.ccall js/Particles "initParticleSystem" "*"
                              #js ["number" "number" "number" "number"]
                              #js [10000 1000 0.0 -0.01 0.125])
-        psys-update  (.cwrap js/Module "updateParticleSystem" "*" #js ["number"])
-        psys-count   (.cwrap js/Module "getNumParticles" "number" #js ["number"])
-        psys-get     (.cwrap js/Module "getParticleComponent" "number" #js ["number" "number" "number"])
-        particle-ptr (.ccall js/Module "getParticlesPointer" "number" #js ["number"] #js [psys])
+        psys-update  (.cwrap js/Particles "updateParticleSystem" "*" #js ["number"])
+        psys-count   (.cwrap js/Particles "getNumParticles" "number" #js ["number"])
+        psys-get     (.cwrap js/Particles "getParticleComponent" "number" #js ["number" "number" "number"])
+        particle-ptr (.ccall js/Particles "getParticlesPointer" "number" #js ["number"] #js [psys])
         gl           (gl/gl-context (reagent/dom-node this))
         particles    (-> {:attribs      {:position {:data   (attrib-buffer-view particle-ptr 9 10000)
                                                     :size   3
@@ -158,7 +158,8 @@
 
 (defn main
   []
-  (.initializeTouchEvents js/React)
+  ;; first initialize C module
+  (js/Particles)
   (reagent/render-component
    [canvas-component {:init init-app-3d
                       :loop update-app-3d}]

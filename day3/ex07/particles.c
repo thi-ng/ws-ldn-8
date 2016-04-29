@@ -1,9 +1,5 @@
-/*
- How to compile this file:
-
- emcc -O2 -s ASM_JS=1 -s INVOKE_RUN=0 particles.c -o resources/public/js/native.html && \
- cp resources/public/js/native.html.mem resources/public/
-*/
+// Use ./compile.sh to compile this file
+// See comments there for further information...
 
 #include <stdio.h>
 #include <stdint.h>
@@ -85,15 +81,15 @@ static void emitParticle(ParticleSystem* psys) {
   psys->numParticles++;
 }
 
-EMSCRIPTEN_KEEPALIVE uint32_t getNumParticles(ParticleSystem* psys) {
+uint32_t getNumParticles(ParticleSystem* psys) {
   return psys->numParticles;
 }
 
-EMSCRIPTEN_KEEPALIVE Particle* getParticlesPointer(ParticleSystem* psys) {
+Particle* getParticlesPointer(ParticleSystem* psys) {
   return psys->particles;
 }
 
-EMSCRIPTEN_KEEPALIVE float getParticleComponent(ParticleSystem* psys, uint32_t idx, uint32_t component) {
+float getParticleComponent(ParticleSystem* psys, uint32_t idx, uint32_t component) {
   float *pos = (float*)&(psys->particles[idx]).pos;
   return pos[component];
 }
@@ -106,7 +102,7 @@ static ParticleSystem* makeParticleSystem(uint32_t num) {
   return psys;
 }
 
-EMSCRIPTEN_KEEPALIVE ParticleSystem* initParticleSystem(uint32_t num, uint32_t maxAge, float emitX, float gravityY, float speed) {
+ParticleSystem* initParticleSystem(uint32_t num, uint32_t maxAge, float emitX, float gravityY, float speed) {
   ParticleSystem *psys = makeParticleSystem(num);
   setVec3(&psys->emitPos, emitX, 1.f, 0.f);
   setVec3(&psys->emitDir, 0.f, 1.f, 0.f);
@@ -116,7 +112,7 @@ EMSCRIPTEN_KEEPALIVE ParticleSystem* initParticleSystem(uint32_t num, uint32_t m
   return psys;
 }
 
-EMSCRIPTEN_KEEPALIVE ParticleSystem* updateParticleSystem(ParticleSystem* psys) {
+ParticleSystem* updateParticleSystem(ParticleSystem* psys) {
   if (psys->age == psys->maxAge) {
     psys->numParticles = 0;
     psys->age = 0;

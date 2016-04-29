@@ -118,7 +118,7 @@ EMSCRIPTEN_KEEPALIVE int main(int argc, char** argv) {
   printf("Hello Emscripten!\n");
   printf("Particle size: %u\n", sizeof(Particle));
   ParticleSystem *psys = makeParticleSystem(10000);
-  setVec3(&(psys->emitPos), 500.f, 1.f, 0.f);
+  setVec3(&(psys->emitPos), 0.f, 1.f, 0.f);
   setVec3(&(psys->emitDir), 0.f, 1.f, 0.f);
   setVec3(&(psys->gravity), 0.f, -0.01f, 0.f);
   psys->maxAge = 1000;

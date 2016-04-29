@@ -80,6 +80,7 @@
 (def shader-spec
   {:vs "void main() {
     gl_Position = proj * view * model * vec4(position, 1.0);
+    gl_PointSize = 10.0;
     }"
    :fs "void main() {
     gl_FragColor = vec4(0.5, 0.5, 0.01, 1.0);
@@ -141,7 +142,8 @@
                    glc/dynamic-draw)
       (doto gl
         (gl/clear-color-and-depth-buffer (col/rgba 0 0 0.1) 1)
-        (gl/draw-with-shader (:particles scene)))
+        (gl/draw-with-shader
+         (assoc (:particles scene) :num-vertices num)))
       (:active (reagent/state this)))))
 
 (defn main

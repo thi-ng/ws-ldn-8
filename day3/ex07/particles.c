@@ -108,9 +108,9 @@ static ParticleSystem* makeParticleSystem(uint32_t num) {
 
 EMSCRIPTEN_KEEPALIVE ParticleSystem* initParticleSystem(uint32_t num, uint32_t maxAge, float emitX, float gravityY, float speed) {
   ParticleSystem *psys = makeParticleSystem(num);
-  setVec3(&(psys->emitPos), emitX, 1.f, 0.f);
-  setVec3(&(psys->emitDir), 0.f, 1.f, 0.f);
-  setVec3(&(psys->gravity), 0.f, gravityY, 0.f);
+  setVec3(&psys->emitPos, emitX, 1.f, 0.f);
+  setVec3(&psys->emitDir, 0.f, 1.f, 0.f);
+  setVec3(&psys->gravity, 0.f, gravityY, 0.f);
   psys->maxAge = maxAge;
   psys->speed = speed;
   return psys;

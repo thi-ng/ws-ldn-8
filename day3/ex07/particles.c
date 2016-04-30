@@ -75,9 +75,7 @@ static void emitParticle(ParticleSystem* psys) {
   p->vel.x += randf();
   p->vel.z += randf();
   scaleVec3(&p->vel, psys->speed);
-  p->col.x = randf01();
-  p->col.y = randf01();
-  p->col.z = randf01();
+  setVec3(&p->col, randf01(), randf01(), randf01());
   psys->numParticles++;
 }
 

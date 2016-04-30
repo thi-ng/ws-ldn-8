@@ -1,2 +1,11 @@
-/* some style */
+body {
+    font-family: Helvetica, Arial, sans-serif;
+}
+
+div {
+    margin-bottom: 1em;
+}
+select {
+    margin-right: 2em;
+}
 

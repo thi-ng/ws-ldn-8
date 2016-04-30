@@ -2,11 +2,10 @@
   (:require-macros
    [thi.ng.math.macros :as mm])
   (:require
+   [ex01.state :as state]
    [ex01.utils :as utils]
    [thi.ng.typedarrays.core :as ta]
-   [thi.ng.geom.gl.webgl.animator :as anim]
-   [thi.ng.domus.core :as dom]
-   [thi.ng.strf.core :as f]))
+   [reagent.core :as r]))
 
 (defn sum-neighbors
   "Returns number of active neighbours for a cell at x;y using
@@ -51,7 +50,7 @@
         h' (- h 2)]
     (set! (.-fillStyle ctx) "#000")
     (.fillRect ctx 0 0 w h)
-    (set! (.-fillStyle ctx) "#f00")
+    (set! (.-fillStyle ctx) "#0ff")
     (loop [i 0, x 1, y 1]
       (if (< x w')
         (do (when (pos? (nth grid i))
@@ -61,23 +60,19 @@
           (recur (+ i 2) 1 (inc y))
           grid)))))
 
-(defn main
-  [canvas ctx width height]
-  (let [num     (* width height)
-        grid    (->> #(if (< (rand) 0.25) 1 0)
-                     (repeatedly num)
-                     vec
-                     volatile!)
-        samples (volatile! [])
-        stats   (dom/by-id "stats")]
-    (anim/animate
-     (fn [_ _]
-       (let [avg (utils/run-with-timer
-                  samples 30
-                  (fn []
-                    (vswap! grid
-                            #(->> %
-                                  (life width height)
-                                  (draw ctx width height)))))]
-         (dom/set-text! stats (f/format [(f/float 3) " ms"] avg))
-         true)))))
+(defn init
+  [this props]
+  (swap! state/app merge
+         {:grid   (->> #(if (< (rand) 0.25) 1 0)
+                       (repeatedly (* (:width props) (:height props)))
+                       vec)}))
+
+(defn redraw
+  [this props]
+  (let [{:keys [width height]} props
+        ctx (.getContext (r/dom-node this) "2d")]
+    (let [[avg grid] (utils/run-with-timer
+                      #(->> (:grid @state/app)
+                            (life width height)
+                            (draw ctx width height)))]
+      (swap! state/app assoc :grid grid :avg avg))))

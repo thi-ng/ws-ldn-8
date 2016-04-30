@@ -2,11 +2,10 @@
   (:require-macros
    [thi.ng.math.macros :as mm])
   (:require
+   [ex01.state :as state]
    [ex01.utils :as utils]
    [thi.ng.typedarrays.core :as ta]
-   [thi.ng.geom.gl.webgl.animator :as anim]
-   [thi.ng.domus.core :as dom]
-   [thi.ng.strf.core :as f]))
+   [reagent.core :as r]))
 
 (defn sum-neighbors
   "Returns number of active neighbours for a cell at x;y using
@@ -63,28 +62,31 @@
   with opaque black."
   [ctx width height]
   (let [img (.createImageData ctx width height)]
-    (.fill (-> img .-data .-buffer js/Uint32Array.) (int 0xff000000))
+    (.fill (ta/uint32-view (.-data img)) (int 0xff000000))
     img))
 
-(defn main
-  [canvas ctx width height]
-  (let [num     (* width height)
-        grid    (->> #(if (< (rand) 0.5) 1 0)
-                     (repeatedly num)
-                     ta/uint8)
-        grid2   (ta/uint8 num)
-        img     (prepare-image ctx width height)
-        state   (volatile! [grid grid2])
-        samples (volatile! [])
-        stats   (dom/by-id "stats")]
-    (anim/animate
-     (fn [_ _]
-       (let [avg (utils/run-with-timer
-                  samples 30
-                  (fn []
-                    (vswap! state
-                            #(->> %
-                                  (life width height)
-                                  (draw ctx img num)))))]
-         (dom/set-text! stats (f/format [(f/float 3) " ms"] avg))
-         true)))))
+(defn init
+  [this props]
+  (let [{:keys [width height]} props
+        num                    (* width height)
+        grid                   (->> #(if (< (rand) 0.5) 1 0)
+                                    (repeatedly num)
+                                    ta/uint8)
+        grid2                  (ta/uint8 num)
+        ctx                    (.getContext (r/dom-node this) "2d")]
+    (swap! state/app merge
+           {:grid      [grid grid2]
+            :pixels    (prepare-image ctx width height)
+            :num-cells num})))
+
+(defn redraw
+  [this props]
+  (let [{:keys [width height]}     props
+        {:keys [pixels num-cells]} @state/app
+        canvas                     (r/dom-node this)
+        ctx                        (.getContext canvas "2d")]
+    (let [[avg grid] (utils/run-with-timer
+                      #(->> (:grid @state/app)
+                            (life width height)
+                            (draw ctx pixels num-cells)))]
+      (swap! state/app assoc :grid grid :avg avg))))

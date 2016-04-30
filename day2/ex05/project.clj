@@ -20,9 +20,7 @@
                            :output-to     "resources/public/js/main.js"
                            :modules       {:cljs-base {:output-to "resources/public/js/base.js"}
                                            :app       {:output-to "resources/public/js/app.js"
-                                                       :entries #{"ex05.core"
-                                                                  ;;"reagent.core" "React"
-                                                                  }}
+                                                       :entries #{"ex05.core"}}
                                            :worker    {:output-to "resources/public/js/worker.js"
                                                        :entries #{"worker"}
                                                        ;;:depends-on #{}

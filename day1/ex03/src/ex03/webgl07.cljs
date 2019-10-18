@@ -35,8 +35,8 @@
    :state    {:depth-test true}})
 
 (defn ^:export demo
-  []
-  (let [gl         (gl/gl-context "main")
+  [canvas]
+  (let [gl         (gl/gl-context canvas)
         view-rect  (gl/get-viewport-rect gl)
         sphere-res 40
         model      (-> (s/sphere 1)

@@ -32,7 +32,6 @@
 
 (defn main
   []
-  (.initializeTouchEvents js/React)
   (let [root [gl-component
               {:init          game/init-game
                :loop          game/game-loop

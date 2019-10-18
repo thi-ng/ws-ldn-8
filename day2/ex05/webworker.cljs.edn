@@ -1,0 +1,9 @@
+{:optimizations :simple
+ :source-map    true
+ :pretty-print  true
+ :modules       {:cljs-base {:output-to "resources/public/js/base.js"}
+                 :app       {:output-to "resources/public/js/app.js"
+                             :entries #{ex05.core}}
+                 :worker    {:output-to "resources/public/js/worker.js"
+                             :web-worker true
+                             :entries #{ex05.worker}}}}

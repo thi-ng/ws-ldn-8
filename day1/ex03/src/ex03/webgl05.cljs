@@ -123,8 +123,8 @@
         [canv (buf/make-canvas-texture gl canv opts)]))))
 
 (defn ^:export demo
-  []
-  (let [gl          (gl/gl-context "main")
+  [canvas]
+  (let [gl          (gl/gl-context canvas)
         view-rect   (gl/get-viewport-rect gl)
         model       (-> (knot-simple)
                         #_(knot-nested 8 7)

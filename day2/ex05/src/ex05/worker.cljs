@@ -1,9 +1,6 @@
-(ns worker
+(ns ex05.worker
   (:require
    [cljs.reader :refer [read-string]]))
-
-;; base.js contains all of cljs.core etc.
-(.importScripts js/self "base.js")
 
 ;; worker's app state
 (def state (atom {}))

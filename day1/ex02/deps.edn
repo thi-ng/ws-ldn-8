@@ -1,0 +1,18 @@
+{:deps {org.clojure/clojure {:mvn/version "1.10.1-beta2"}
+        org.clojure/clojurescript {:mvn/version "1.10.439"}
+        org.clojure/core.async {:mvn/version "0.2.374" :exclusions [org.clojure/tools.reader]}
+        javax.xml.bind/jaxb-api {:mvn/version "2.4.0-b180830.0359"}
+        thi.ng/geom {:mvn/version "1.0.0-RC3" :exclusions [org.clojure/clojurescript org.clojure/clojure]}
+        thi.ng/domus {:mvn/version "0.3.0-SNAPSHOT"}
+        reagent {:mvn/version "0.8.1"}}
+ :paths ["src" "resources"]
+ :aliases
+ {:dev {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.0-SNAPSHOT"}
+                     org.clojure/tools.nrepl {:mvn/version "0.2.12"}
+                     cider/cider-nrepl {:mvn/version "0.22.0-beta1"}
+                     nrepl {:mvn/version "0.6.0"}
+                     cider/piggieback {:mvn/version "0.4.1"}
+                     cljs-tooling {:mvn/version "0.3.0"}}
+        :main-opts ["-m" "nrepl.cmdline" "--middleware"
+                    "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}
+  :prod {:main-opts ["-m" "cljs.main" "-co" "prod.cljs.edn" "--compile"]}}}

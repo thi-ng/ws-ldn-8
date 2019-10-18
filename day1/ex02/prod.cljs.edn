@@ -1,0 +1,7 @@
+{:main ex02.core
+ :asset-path "js/compiled/out"
+ :output-to "resources/public/js/compiled/app.js"
+ :output-dir "resources/public/js/compiled/out"
+ :optimizations :advanced
+ :pretty-print false}
+

@@ -1,5 +1,9 @@
-{:main                 ex04.core
- :asset-path           "js/compiled/out"
- :output-to            "resources/public/js/compiled/app.js"
- :output-dir           "resources/public/js/compiled/out"
- :source-map-timestamp true}
+{:optimizations :simple
+ :pretty-print  true
+ :output-to     "resources/public/js/main.js"
+ :modules       {:cljs-base {:output-to "resources/public/js/base.js"}
+                 :app       {:output-to "resources/public/js/app.js"
+                             :entries #{"ex05.core"}}
+                 :worker    {:output-to "resources/public/js/worker.js"
+                             :web-worker true
+                             :entries #{"ex05.worker"}}}}

@@ -1,2 +1,1 @@
-{:css-dirs ["resources/public/css"]
- :ring-server-options {:port "9504"}}
+{:ring-server-options {:port "9505"}}

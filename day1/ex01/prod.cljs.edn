@@ -1,7 +1,7 @@
-{:main ex07.core
+{:main ex01.core
  :asset-path "js/compiled/out"
  :output-to "resources/public/js/compiled/app.js"
  :output-dir "resources/public/js/compiled/out"
- :externs ["externs.js"]
- :optimizations :none
+ :optimizations :advanced
  :pretty-print false}
+

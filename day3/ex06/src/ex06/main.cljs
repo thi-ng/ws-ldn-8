@@ -54,8 +54,7 @@
         (fn [] (.stop stream) (set-stream-state! :error)))
   (set! (.-onended stream)
         (fn [] (.stop stream) (set-stream-state! :stopped)))
-  (set! (.-src video)
-        (.createObjectURL (or (aget js/window "URL") (aget js/window "webkitURL")) stream))
+  (set! (.-srcObject video) stream)
   (set-stream-state! :ready)
   (init-video-texture video))
 

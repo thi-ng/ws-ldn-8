@@ -9,7 +9,7 @@
             [reagent.core :as r]
             [goog.dom :as gdom]))
 
-(def demos {"gears" gl01/demo
+(def demos {"Gears" gl01/demo
             "Rotating Cube" gl02/demo
             "Rotating Cube with Lighting" gl03/demo
             "Translucent Cube" gl04/demo
@@ -24,13 +24,11 @@
   (r/create-class
    {:component-did-mount
     (fn [this]
-      (println "Mounted")
       (r/set-state this {:active true})
       (js/console.log (r/dom-node this))
       (demo-fn (r/dom-node this)))
     :component-will-unmount
     (fn [this]
-      (println "unmounting")
       (r/set-state this {:active false}))
     :reagent-render
     (fn [_]
@@ -48,7 +46,6 @@
 
 (defn main-component []
   (let [demo @current-demo]
-    (println demo)
     [:div
      [demo-selector]
      [(canvas-component (demos demo))]]))

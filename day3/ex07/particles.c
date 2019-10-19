@@ -1,4 +1,5 @@
 // Use ./compile.sh to compile this file
+
 // See comments there for further information...
 
 #include <stdio.h>
@@ -136,6 +137,6 @@ ParticleSystem* updateParticleSystem(ParticleSystem* psys) {
 
 int main(int argc, char** argv) {
   printf("Hello Emscripten!\n");
-  printf("Particle size: %u\n", sizeof(Particle));
+  printf("Particle size: %lu\n", sizeof(Particle));
   return 0;
 }

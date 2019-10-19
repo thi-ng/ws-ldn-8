@@ -16,7 +16,8 @@
    [thi.ng.color.core :as col]
    [reagent.core :as reagent]))
 
-(defonce app (reagent/atom {:mpos [0 0]}))
+(defonce app (reagent/atom {:mpos [0 0]
+                            :particles (js/Particles)}))
 
 (enable-console-print!)
 
@@ -172,15 +173,13 @@
 
 (defn main
   []
-  ;; first initialize C module
-  (let [particles (js/Particles)]
-    (swap! app assoc :particles particles)
-    (.then particles
-           (fn [_]
-             (reagent/render-component [canvas-component
-                                        {:init          init-app-3d
-                                         :loop          update-app-3d
-                                         :on-mouse-move #(swap! app assoc :mpos [(.-clientX %) (.-clientY %)])}]
-                                       (dom/by-id "app"))))))
+  ;; Mounter after C module is initialized
+  (.then (:particles @app)
+         (fn [_]
+           (reagent/render-component [canvas-component
+                                      {:init          init-app-3d
+                                       :loop          update-app-3d
+                                       :on-mouse-move #(swap! app assoc :mpos [(.-clientX %) (.-clientY %)])}]
+                                     (dom/by-id "app")))))
 
 (main)

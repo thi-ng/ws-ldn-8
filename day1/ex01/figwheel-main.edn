@@ -1,1 +1,1 @@
-{:ring-server-options {:port 9502}}
+{:ring-server-options {:port 9501}}

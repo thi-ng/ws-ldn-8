@@ -17,7 +17,7 @@
             "Trance" gl06/demo
             "Spinning World" gl07/demo})
 
-(def current-demo (r/atom "gears"))
+(def current-demo (r/atom "Gears"))
 
 (defn canvas-component
   [demo-fn]
@@ -25,7 +25,6 @@
    {:component-did-mount
     (fn [this]
       (r/set-state this {:active true})
-      (js/console.log (r/dom-node this))
       (demo-fn (r/dom-node this)))
     :component-will-unmount
     (fn [this]

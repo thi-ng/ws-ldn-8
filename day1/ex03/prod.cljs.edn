@@ -1,0 +1,6 @@
+{:main ex03.core
+ :asset-path "js/compiled/out"
+ :output-to "resources/public/js/compiled/app.js"
+ :output-dir "resources/public/js/compiled/out"
+ :optimizations :simple
+ :pretty-print false}

@@ -168,4 +168,4 @@
 
 ;;(main-svg)
 ;;(main-svg-attribs)
-;;(main-canvas)
+(main-canvas)

@@ -61,7 +61,6 @@
 
 (defn main
   []
-  (.initializeTouchEvents js/React)
   (reagent/render-component [app-component] (dom/by-id "app")))
 
 (main)

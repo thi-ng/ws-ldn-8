@@ -1,0 +1,17 @@
+{:deps {org.clojure/clojure {:mvn/version "1.10.1"}
+        org.clojure/clojurescript {:mvn/version "1.10.520"}
+        reagent {:mvn/version "0.9.0-rc2"}}
+ :paths ["src" "resources"]
+ :aliases
+ {:rebel {:extra-deps {com.bhauman/rebel-readline {:mvn/version "0.1.4"}}
+          :main-opts  ["-m" "rebel-readline.main"]}
+  :dev {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.0-SNAPSHOT"}
+                     org.clojure/tools.nrepl {:mvn/version "0.2.12"}
+                     cider/cider-nrepl {:mvn/version "0.22.0-beta1"}
+                     nrepl {:mvn/version "0.6.0"}
+                     cljs-tooling {:mvn/version "0.3.0"}}
+        :main-opts ["-m" "nrepl.cmdline" "--middleware"
+                    "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}
+  :prod {:main-opts ["-m" "cljs.main" "-co" "prod.cljs.edn" "--compile"]}
+  :webworker {:main-opts ["-m" "cljs.main" "-co" "webworker.cljs.edn" "--compile"]}}}
+

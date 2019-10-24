@@ -45,8 +45,8 @@
      :state    {:depth-test true}})
 
 (defn ^:export demo
-  []
-  (let [gl             (gl/gl-context "main")
+  [canvas]
+  (let [gl             (gl/gl-context canvas)
           view-rect      (gl/get-viewport-rect gl)
           main-shader    (sh/make-shader-from-spec gl shader-spec)
           lambert-shader (sh/make-shader-from-spec gl lambert/shader-spec-attrib)

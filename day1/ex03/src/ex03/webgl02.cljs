@@ -16,8 +16,8 @@
    [thi.ng.color.core :as col]))
 
 (defn ^:export demo
-  []
-  (let [gl        (gl/gl-context "main")
+  [canvas]
+  (let [gl        (gl/gl-context canvas)
         view-rect (gl/get-viewport-rect gl)
         model     (-> (a/aabb 1)
                       (g/center)

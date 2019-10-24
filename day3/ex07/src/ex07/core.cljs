@@ -16,7 +16,8 @@
    [thi.ng.color.core :as col]
    [reagent.core :as reagent]))
 
-(defonce app (reagent/atom {:mpos [0 0]}))
+(defonce app (reagent/atom {:mpos [0 0]
+                            :particles (js/Particles)}))
 
 (enable-console-print!)
 
@@ -38,19 +39,20 @@
        (merge
         {:width (.-innerWidth js/window)
          :height (.-innerHeight js/window)}
-        props)])}))
+        (dissoc props :init :loop))])}))
 
 
 (defn init-app-2d
   [this]
   (let [canvas      (reagent/dom-node this)
+        particles   (:particles @app)
         ctx         (.getContext canvas "2d")
-        psys        (.ccall js/Particles "initParticleSystem" "*"
+        psys        (.ccall (:particles @app) "initParticleSystem" "*"
                             #js ["number" "number" "number" "number"]
                             #js [10000 1000 (/ (.-width canvas) 2) -0.1 3])
-        psys-update (.cwrap js/Particles "updateParticleSystem" "*" #js ["number"])
-        psys-count  (.cwrap js/Particles "getNumParticles" "number" #js ["number"])
-        psys-get    (.cwrap js/Particles "getParticleComponent" "number" #js ["number" "number" "number"])]
+        psys-update (.cwrap particles "updateParticleSystem" "*" #js ["number"])
+        psys-count  (.cwrap particles "getNumParticles" "number" #js ["number"])
+        psys-get    (.cwrap particles "getParticleComponent" "number" #js ["number" "number" "number"])]
     (swap! app merge
            {:psys        psys
             :psys-update psys-update
@@ -99,35 +101,36 @@
               :blend-fn   [glc/src-alpha glc/one]}})
 
 (defn attrib-buffer-view
-  [ptr stride num]
-  (js/Float32Array. (.-buffer (aget js/Particles "HEAPU8")) ptr (* stride num)))
+  [particles ptr stride num]
+  (js/Float32Array. (.-buffer (aget particles "HEAPU8")) ptr (* stride num)))
 
 (defn update-attrib-buffer
-  [gl attrib ptr stride num]
+  [particles gl attrib ptr stride num]
   (.bindBuffer gl glc/array-buffer
                (get-in (:scene @app) [:particles :attribs attrib :buffer]))
   (.bufferData gl glc/array-buffer
-               (attrib-buffer-view ptr stride num)
+               (attrib-buffer-view particles ptr stride num)
                glc/dynamic-draw))
 
 (defn init-app-3d
   [this]
-  (let [psys         (.ccall js/Particles "initParticleSystem" "*"
+  (let [particles (:particles @app)
+        psys         (.ccall particles "initParticleSystem" "*"
                              #js ["number" "number" "number" "number"]
                              #js [10000 1000 0.0 -0.01 0.125])
-        psys-update  (.cwrap js/Particles "updateParticleSystem" "*" #js ["number"])
-        psys-count   (.cwrap js/Particles "getNumParticles" "number" #js ["number"])
-        psys-get     (.cwrap js/Particles "getParticleComponent" "number" #js ["number" "number" "number"])
-        particle-ptr (.ccall js/Particles "getParticlesPointer" "number" #js ["number"] #js [psys])
+        psys-update  (.cwrap particles "updateParticleSystem" "*" #js ["number"])
+        psys-count   (.cwrap particles "getNumParticles" "number" #js ["number"])
+        psys-get     (.cwrap particles "getParticleComponent" "number" #js ["number" "number" "number"])
+        particle-ptr (.ccall particles "getParticlesPointer" "number" #js ["number"] #js [psys])
         gl           (gl/gl-context (reagent/dom-node this))
         view         (gl/get-viewport-rect gl)
         tex          (buf/load-texture
                       gl {:callback (fn [tex img] (swap! app assoc :tex-ready true))
                           :src      "img/tex32.png"})
-        particles    (-> {:attribs      {:position {:data   (attrib-buffer-view particle-ptr 9 10000)
+        particles    (-> {:attribs      {:position {:data   (attrib-buffer-view particles particle-ptr 9 10000)
                                                     :size   3
                                                     :stride 36}
-                                         :color    {:data   (attrib-buffer-view (+ particle-ptr 24) 9 10000)
+                                         :color    {:data   (attrib-buffer-view particles (+ particle-ptr 24) 9 10000)
                                                     :size   3
                                                     :stride 36}}
                           :num-vertices 10000
@@ -151,11 +154,11 @@
   [this]
   (fn [t frame]
     (when (:tex-ready @app)
-      (let [{:keys [gl psys psys-update psys-count particle-ptr scene mpos]} @app
+      (let [{:keys [gl psys psys-update psys-count particle-ptr scene mpos particles]} @app
             _   (psys-update psys)
             num (psys-count psys)]
-        (update-attrib-buffer gl :position particle-ptr 9 10000)
-        (update-attrib-buffer gl :color (+ particle-ptr 24) 9 10000)
+        (update-attrib-buffer particles gl :position particle-ptr 9 10000)
+        (update-attrib-buffer particles gl :color (+ particle-ptr 24) 9 10000)
         (doto gl
           (gl/clear-color-and-depth-buffer (col/rgba 0 0 0.1) 1)
           (gl/draw-with-shader
@@ -170,13 +173,13 @@
 
 (defn main
   []
-  ;; first initialize C module
-  (js/Particles)
-  (reagent/render-component
-   [canvas-component
-    {:init          init-app-3d
-     :loop          update-app-3d
-     :on-mouse-move #(swap! app assoc :mpos [(.-clientX %) (.-clientY %)])}]
-   (dom/by-id "app")))
+  ;; Mounter after C module is initialized
+  (.then (:particles @app)
+         (fn [_]
+           (reagent/render-component [canvas-component
+                                      {:init          init-app-3d
+                                       :loop          update-app-3d
+                                       :on-mouse-move #(swap! app assoc :mpos [(.-clientX %) (.-clientY %)])}]
+                                     (dom/by-id "app")))))
 
 (main)

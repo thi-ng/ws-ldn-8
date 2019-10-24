@@ -25,9 +25,9 @@
    :state    {:depth false}})
 
 (defn ^:export demo
-  []
+  [canvas]
   (let [teeth     20
-        gl        (gl/gl-context "main")
+        gl        (gl/gl-context canvas)
         view-rect (gl/get-viewport-rect gl)
         model     (-> (poly/cog 0.5 teeth [0.9 1 1 0.9])
                       (gl/as-gl-buffer-spec {:normals false})
